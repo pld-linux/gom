@@ -5,12 +5,12 @@
 Summary:	GObject Data Mapper library
 Summary(pl.UTF-8):	Biblioteka GObject Data Mapper
 Name:		gom
-Version:	0.2.0
+Version:	0.2.1
 Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
 Source0:	http://ftp.gnome.org/pub/GNOME/sources/gom/0.2/%{name}-%{version}.tar.xz
-# Source0-md5:	d3ff7f8c29ce62e133d42cdf55608aa0
+# Source0-md5:	97a9a260c4fe0ac57568122f53fab13d
 URL:		http://www.gtk.org/
 BuildRequires:	autoconf >= 2.64
 BuildRequires:	automake
