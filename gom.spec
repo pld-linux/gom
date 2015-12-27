@@ -1,16 +1,17 @@
 #
 # Conditional build:
+%bcond_without	python		# Python (3) binding
 %bcond_without	static_libs	# static library
 #
 Summary:	GObject Data Mapper library
 Summary(pl.UTF-8):	Biblioteka GObject Data Mapper
 Name:		gom
-Version:	0.3.1
+Version:	0.3.2
 Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
 Source0:	http://ftp.gnome.org/pub/GNOME/sources/gom/0.3/%{name}-%{version}.tar.xz
-# Source0-md5:	f18b16e193644e0dbafb198b60c6a7b4
+# Source0-md5:	4191f13d5ec1803a60c0e08330680d8f
 URL:		https://github.com/GNOME/gom
 BuildRequires:	autoconf >= 2.64
 BuildRequires:	automake
@@ -24,6 +25,8 @@ BuildRequires:	gtk-doc >= 1.14
 BuildRequires:	intltool >= 0.40.0
 BuildRequires:	libtool >= 2:2.2
 BuildRequires:	pkgconfig
+%{?with_python:BuildRequires:	python3-devel >= 1:3.4}
+%{?with_python:BuildRequires:	python3-pygobject3-devel >= 3.16.0}
 BuildRequires:	sqlite3-devel >= 3.7
 Requires:	glib2 >= 1:2.36
 Requires:	sqlite3 >= 3.7
@@ -77,6 +80,19 @@ GOM library API documentation.
 %description apidocs -l pl.UTF-8
 Dokumentacja API biblioteki GOM.
 
+%package -n python3-gom
+Summary:	Python 3 binding for GOM library
+Summary(pl.UTF-8):	Wiązanie Pythona 3 do biblioteki GOM
+Group:		Libraries/Python
+Requires:	%{name} = %{version}-%{release}
+Requires:	python3-pygobject3 >= 3.16.0
+
+%description -n python3-gom
+Python 3 binding for GOM library.
+
+%description -n python3-gom -l pl.UTF-8
+Wiązanie Pythona 3 do biblioteki GOM.
+
 %prep
 %setup -q
 
@@ -89,6 +105,7 @@ Dokumentacja API biblioteki GOM.
 %{__autoheader}
 %{__automake}
 %configure \
+	%{!?with_python:--disable-python} \
 	--disable-silent-rules \
 	%{!?with_static_libs:--disable-static} \
 	--with-html-dir=%{_gtkdocdir}
@@ -134,3 +151,10 @@ rm -rf $RPM_BUILD_ROOT
 %files apidocs
 %defattr(644,root,root,755)
 %{_gtkdocdir}/gom
+
+%if %{with python}
+%files -n python3-gom
+%defattr(644,root,root,755)
+%{py3_sitedir}/gi/overrides/Gom.py
+%{py3_sitedir}/gi/overrides/__pycache__/Gom.cpython-*.py[co]
+%endif
