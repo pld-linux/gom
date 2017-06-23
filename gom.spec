@@ -1,32 +1,29 @@
 #
 # Conditional build:
 %bcond_without	python		# Python (3) binding
-%bcond_without	static_libs	# static library
 #
 Summary:	GObject Data Mapper library
 Summary(pl.UTF-8):	Biblioteka GObject Data Mapper
 Name:		gom
-Version:	0.3.2
-Release:	2
+Version:	0.3.3
+Release:	1
 License:	LGPL v2.1+
 Group:		Libraries
 Source0:	http://ftp.gnome.org/pub/GNOME/sources/gom/0.3/%{name}-%{version}.tar.xz
-# Source0-md5:	4191f13d5ec1803a60c0e08330680d8f
+# Source0-md5:	e0372ce26af5034699c1e6b5ff589bf9
 URL:		https://github.com/GNOME/gom
-BuildRequires:	autoconf >= 2.64
-BuildRequires:	automake
 BuildRequires:	gdk-pixbuf2-devel >= 2.0
 BuildRequires:	gettext-devel
 BuildRequires:	gettext-tools
 BuildRequires:	glib2-devel >= 1:2.36
-BuildRequires:	gnome-common
 BuildRequires:	gobject-introspection-devel >= 1.30.0
 BuildRequires:	gtk-doc >= 1.14
 BuildRequires:	intltool >= 0.40.0
-BuildRequires:	libtool >= 2:2.2
+BuildRequires:	meson >= 0.38.1
 BuildRequires:	pkgconfig
 %{?with_python:BuildRequires:	python3-devel >= 1:3.4}
 %{?with_python:BuildRequires:	python3-pygobject3-devel >= 3.16.0}
+BuildRequires:	rpmbuild(macros) >= 1.714
 BuildRequires:	sqlite3-devel >= 3.7
 Requires:	glib2 >= 1:2.36
 Requires:	sqlite3 >= 3.7
@@ -46,24 +43,13 @@ Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki GOM
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Requires:	glib2-devel >= 1:2.36
+Obsoletes:	gom-static
 
 %description devel
 This is the package containing the header files for GOM.
 
 %description devel -l pl.UTF-8
 Ten pakiet zawiera pliki nagłówkowe GOM.
-
-%package static
-Summary:	Static GOM library
-Summary(pl.UTF-8):	Statyczna biblioteka GOM
-Group:		Development/Libraries
-Requires:	%{name}-devel = %{version}-%{release}
-
-%description static
-Static GOM library.
-
-%description static -l pl.UTF-8
-Statyczna biblioteka GOM.
 
 %package apidocs
 Summary:	GOM library API documentation
@@ -97,30 +83,28 @@ Wiązanie Pythona 3 do biblioteki GOM.
 %setup -q
 
 %build
-%{__gtkdocize}
-%{__intltoolize}
-%{__libtoolize}
-%{__aclocal}
-%{__autoconf}
-%{__autoheader}
-%{__automake}
-%configure \
-	%{!?with_python:--disable-python} \
-	--disable-silent-rules \
-	%{!?with_static_libs:--disable-static} \
-	--with-html-dir=%{_gtkdocdir}
-%{__make}
+CC="%{__cc}" \
+CFLAGS="%{rpmcflags} %{rpmcppflags}" \
+LDFLAGS="%{rpmldflags}" \
+meson build \
+	--buildtype=plain \
+	--prefix=%{_prefix} \
+	--libdir=%{_libdir} \
+	-Denable-gtk-doc=true
+
+ninja -C build -v
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
+DESTDIR=$RPM_BUILD_ROOT \
+ninja -C build -v install
 
-# obsoleted by pkg-config
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/*.la
+install -d $RPM_BUILD_ROOT%{_gtkdocdir}
+%{__mv} $RPM_BUILD_ROOT%{_datadir}/gtk-doc/html/* $RPM_BUILD_ROOT%{_gtkdocdir}
 
-%find_lang %{name}
+%py3_comp $RPM_BUILD_ROOT%{py3_sitedir}
+%py3_ocomp $RPM_BUILD_ROOT%{py3_sitedir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -128,7 +112,7 @@ rm -rf $RPM_BUILD_ROOT
 %post	-p /sbin/ldconfig
 %postun	-p /sbin/ldconfig
 
-%files -f %{name}.lang
+%files
 %defattr(644,root,root,755)
 %doc AUTHORS ChangeLog NEWS README TODO
 %attr(755,root,root) %{_libdir}/libgom-1.0.so.*.*.*
@@ -141,12 +125,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/gom-1.0
 %{_pkgconfigdir}/gom-1.0.pc
 %{_datadir}/gir-1.0/Gom-1.0.gir
-
-%if %{with static_libs}
-%files static
-%defattr(644,root,root,755)
-%{_libdir}/libgom-1.0.a
-%endif
 
 %files apidocs
 %defattr(644,root,root,755)
