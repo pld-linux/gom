@@ -6,7 +6,7 @@ Summary:	GObject Data Mapper library
 Summary(pl.UTF-8):	Biblioteka GObject Data Mapper
 Name:		gom
 Version:	0.3.3
-Release:	2
+Release:	3
 License:	LGPL v2.1+
 Group:		Libraries
 Source0:	http://ftp.gnome.org/pub/GNOME/sources/gom/0.3/%{name}-%{version}.tar.xz
@@ -86,22 +86,14 @@ Wiązanie Pythona 3 do biblioteki GOM.
 CC="%{__cc}" \
 CFLAGS="%{rpmcflags} %{rpmcppflags}" \
 LDFLAGS="%{rpmldflags}" \
-meson build \
-	--buildtype=plain \
-	--prefix=%{_prefix} \
-	--libdir=%{_libdir} \
+%meson build \
 	-Denable-gtk-doc=true
-
-ninja -C build -v
+%meson_build -C build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-DESTDIR=$RPM_BUILD_ROOT \
-ninja -C build -v install
-
-install -d $RPM_BUILD_ROOT%{_gtkdocdir}
-%{__mv} $RPM_BUILD_ROOT%{_datadir}/gtk-doc/html/* $RPM_BUILD_ROOT%{_gtkdocdir}
+%meson_install -C build
 
 %py3_comp $RPM_BUILD_ROOT%{py3_sitedir}
 %py3_ocomp $RPM_BUILD_ROOT%{py3_sitedir}
