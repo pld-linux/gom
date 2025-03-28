@@ -6,7 +6,7 @@ Summary:	GObject Data Mapper library
 Summary(pl.UTF-8):	Biblioteka GObject Data Mapper
 Name:		gom
 Version:	0.4
-Release:	7
+Release:	8
 License:	LGPL v2.1+
 Group:		Libraries
 Source0:	http://ftp.gnome.org/pub/GNOME/sources/gom/0.4/%{name}-%{version}.tar.xz
