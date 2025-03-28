@@ -21,7 +21,7 @@ BuildRequires:	meson >= 0.48
 BuildRequires:	pkgconfig
 %{?with_python:BuildRequires:	python3-devel >= 1:3.4}
 %{?with_python:BuildRequires:	python3-pygobject3-devel >= 3.16.0}
-BuildRequires:	rpmbuild(macros) >= 1.714
+BuildRequires:	rpmbuild(macros) >= 2.042
 BuildRequires:	sqlite3-devel >= 3.7
 Requires:	glib2 >= 1:2.36
 Requires:	sqlite3 >= 3.7
@@ -79,17 +79,15 @@ Wiązanie Pythona 3 do biblioteki GOM.
 %setup -q
 
 %build
-CC="%{__cc}" \
-CFLAGS="%{rpmcflags} %{rpmcppflags}" \
-LDFLAGS="%{rpmldflags}" \
-%meson build \
+%meson \
 	-Denable-gtk-doc=true
-%meson_build -C build
+
+%meson_build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%meson_install -C build
+%meson_install
 
 %py3_comp $RPM_BUILD_ROOT%{py3_sitedir}
 %py3_ocomp $RPM_BUILD_ROOT%{py3_sitedir}
